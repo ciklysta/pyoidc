@@ -1110,9 +1110,8 @@ class Client(oauth2.Client):
                 pass
 
         if "redirect_uris" not in req:
-            try:
-                req["redirect_uris"] = self.redirect_uris
-            except AttributeError:
+            req["redirect_uris"] = self.redirect_uris
+            if not req["redirect_uris"] or not req["redirect_uris"][0]:
                 raise MissingRequiredAttribute("redirect_uris", req)
 
         return req

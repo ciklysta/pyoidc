@@ -143,7 +143,7 @@ class Client(PBase):
 
         self.authorization_endpoint = None
         self.token_endpoint = None
-        self.redirect_uris = None
+        self.redirect_uris = [None]
 
     def grant_from_state(self, state):
         for key, grant in self.grant.items():
