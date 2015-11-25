@@ -845,26 +845,18 @@ class Client(oauth2.Client):
 
         if "issuer" in pcr:
             _pcr_issuer = pcr["issuer"]
-            if pcr["issuer"].endswith("/"):
-                if issuer.endswith("/"):
-                    _issuer = issuer
+            # issuer - add or remove trailing / to correspond to pcr's issuer
+            _issuer_trailing = issuer.endswith("/")
+            if _pcr_issuer.endswith("/") is not _issuer_trailing:
+                # not matching
+                if _issuer_trailing:
+                    issuer = issuer[:-1]
                 else:
-                    _issuer = issuer + "/"
-            else:
-                if issuer.endswith("/"):
-                    _issuer = issuer[:-1]
-                else:
-                    _issuer = issuer
+                    issuer += "/"
 
-            try:
-                _ = self.allow["issuer_mismatch"]
-            except KeyError:
-                try:
-                    assert _issuer == _pcr_issuer
-                except AssertionError:
-                    raise IssuerMismatch("'%s' != '%s'" % (_issuer,
-                                                           _pcr_issuer),
-                                         pcr)
+            if issuer != _pcr_issuer and "issuer_mismatch" not in self.allow:
+                raise IssuerMismatch("'%s' != '%s'" % (_issuer, _pcr_issuer),
+                                     pcr)
 
             self.provider_info = pcr
         else:
