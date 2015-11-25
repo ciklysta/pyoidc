@@ -884,7 +884,7 @@ class Client(oauth2.Client):
         url = serv_pattern % _issuer
 
         pcr = None
-        r = self.http_request(url)
+        r = self.http_request(url, allow_redirects=True)
         if r.status_code == 200:
             try:
                 pcr = response_cls().from_json(r.text)
@@ -892,12 +892,6 @@ class Client(oauth2.Client):
                 _err_txt = "Faulty provider config response: {}".format(r.text)
                 logger.error(_err_txt)
                 raise PyoidcError(_err_txt)
-        elif r.status_code == 302 or r.status_code == 301:
-            while r.status_code == 302 or r.status_code == 301:
-                r = self.http_request(r.headers["location"])
-                if r.status_code == 200:
-                    pcr = response_cls().from_json(r.text)
-                    break
 
         # logger.debug("Provider info: %s" % pcr)
         if pcr is None:
